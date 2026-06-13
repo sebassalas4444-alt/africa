@@ -1,0 +1,518 @@
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Gamepad2, MapPin, CheckCircle2, XCircle, ArrowRight, RotateCcw, Home, Trophy, Search, Globe2, Shuffle, Zap, Sparkles } from 'lucide-react';
+
+// --- DATOS DE ÁFRICA ---
+const AFRICA_COUNTRIES = [
+  { id: 1, country: "Angola", capital: "Luanda" },
+  { id: 2, country: "Argelia", capital: "Argel" },
+  { id: 3, country: "Benín", capital: "Porto Novo" },
+  { id: 4, country: "Botsuana", capital: "Gaborone" },
+  { id: 5, country: "Burkina Faso", capital: "Uagadugú" },
+  { id: 6, country: "Burundi", capital: "Gitega" },
+  { id: 7, country: "Cabo Verde", capital: "Praia" },
+  { id: 8, country: "Camerún", capital: "Yaundé" },
+  { id: 9, country: "Chad", capital: "Yamena" },
+  { id: 10, country: "Comoras", capital: "Moroni" },
+  { id: 11, country: "Costa de Marfil", capital: "Yamusukro" },
+  { id: 12, country: "Egipto", capital: "El Cairo" },
+  { id: 13, country: "Eritrea", capital: "Asmara" },
+  { id: 14, country: "Esuatini", capital: "Mbabane" },
+  { id: 15, country: "Etiopía", capital: "Adís Abeba" },
+  { id: 16, country: "Gabón", capital: "Libreville" },
+  { id: 17, country: "Gambia", capital: "Banjul" },
+  { id: 18, country: "Ghana", capital: "Acra" },
+  { id: 19, country: "Guinea", capital: "Conakri" },
+  { id: 20, country: "Guinea-Bisáu", capital: "Bisáu" },
+  { id: 21, country: "Guinea Ecuatorial", capital: "Malabo" },
+  { id: 22, country: "Kenia", capital: "Nairobi" },
+  { id: 23, country: "Lesoto", capital: "Maseru" },
+  { id: 24, country: "Liberia", capital: "Monrovia" },
+  { id: 25, country: "Libia", capital: "Trípoli" },
+  { id: 26, country: "Madagascar", capital: "Antananarivo" },
+  { id: 27, country: "Malaui", capital: "Lilongüe" },
+  { id: 28, country: "Malí", capital: "Bamako" },
+  { id: 29, country: "Marruecos", capital: "Rabat" },
+  { id: 30, country: "Mauricio", capital: "Port Louis" },
+  { id: 31, country: "Mauritania", capital: "Nuakchot" },
+  { id: 32, country: "Mozambique", capital: "Maputo" },
+  { id: 33, country: "Namibia", capital: "Windhoek" },
+  { id: 34, country: "Níger", capital: "Niamey" },
+  { id: 35, country: "Nigeria", capital: "Abuya" },
+  { id: 36, country: "República Centroafricana", capital: "Bangui" },
+  { id: 37, country: "República del Congo", capital: "Brazzaville" },
+  { id: 38, country: "Rep. Democrática del Congo", capital: "Kinshasa" },
+  { id: 39, country: "Ruanda", capital: "Kigali" },
+  { id: 40, country: "Santo Tomé y Príncipe", capital: "Santo Tomé" },
+  { id: 41, country: "Senegal", capital: "Dakar" },
+  { id: 42, country: "Seychelles", capital: "Victoria" },
+  { id: 43, country: "Sierra Leona", capital: "Freetown" },
+  { id: 44, country: "Somalia", capital: "Mogadiscio" },
+  { id: 45, country: "Sudáfrica", capital: "Pretoria" },
+  { id: 46, country: "Sudán", capital: "Jartum" },
+  { id: 47, country: "Sudán del Sur", capital: "Yuba" },
+  { id: 48, country: "Tanzania", capital: "Dodoma" },
+  { id: 49, country: "Togo", capital: "Lomé" },
+  { id: 50, country: "Túnez", capital: "Túnez" },
+  { id: 51, country: "Uganda", capital: "Kampala" },
+  { id: 52, country: "Yibuti", capital: "Yibuti" },
+  { id: 53, country: "Zambia", capital: "Lusaka" },
+  { id: 54, country: "Zimbabue", capital: "Harare" }
+];
+
+// --- FUNCIONES AUXILIARES ---
+const shuffleArray = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+// --- COMPONENTES ---
+
+// 1. Tarjetas Didácticas (Modo Estudio)
+const Flashcards = ({ onBack }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [flippedCards, setFlippedCards] = useState({});
+  const [countriesList, setCountriesList] = useState(AFRICA_COUNTRIES);
+
+  const handleShuffle = () => {
+    setCountriesList(shuffleArray(countriesList));
+    setFlippedCards({}); // Reset flips when shuffling
+  };
+
+  const filteredCountries = countriesList.filter(c => 
+    c.country.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    c.capital.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleFlip = (id) => {
+    setFlippedCards(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  return (
+    <div className="w-full max-w-6xl mx-auto p-4 animate-in fade-in zoom-in duration-500">
+      
+      {/* Controles Superiores */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 backdrop-blur-md">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors bg-slate-700/50 hover:bg-slate-700 px-5 py-2.5 rounded-full shadow-sm border border-slate-600"
+        >
+          <Home className="w-5 h-5" /> Volver
+        </button>
+        
+        <div className="flex w-full md:w-auto gap-3">
+          <button 
+            onClick={handleShuffle}
+            className="flex items-center gap-2 text-emerald-300 hover:text-white transition-colors bg-emerald-900/30 hover:bg-emerald-800/50 px-5 py-2.5 rounded-full shadow-sm border border-emerald-700/50"
+            title="Mezclar el orden de las tarjetas"
+          >
+            <Shuffle className="w-5 h-5" /> <span className="hidden sm:inline">Mezclar</span>
+          </button>
+          
+          <div className="relative flex-grow md:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Buscar país o capital..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-2.5 rounded-full bg-slate-900/50 border border-slate-600 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-500 shadow-inner"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center justify-center gap-3">
+          <BookOpen className="w-10 h-10 text-emerald-400" />
+          Archivo de Estudio
+        </h2>
+        <p className="text-slate-400 mt-3 text-lg">Toca cualquier tarjeta para revelar la respuesta. ¡Mezcla para poner a prueba tu memoria!</p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        {filteredCountries.map((item) => (
+          <div 
+            key={item.id} 
+            onClick={() => toggleFlip(item.id)}
+            className={`cursor-pointer h-36 relative [perspective:1000px] group`}
+          >
+            <div className={`w-full h-full absolute transition-transform duration-500 ease-out [transform-style:preserve-3d] ${flippedCards[item.id] ? '[transform:rotateY(180deg)]' : ''}`}>
+              
+              {/* Frente de la tarjeta (País) */}
+              <div className="absolute w-full h-full backface-hidden [backface-visibility:hidden] bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-lg border border-slate-700 flex flex-col items-center justify-center p-4 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all">
+                <Globe2 className="w-8 h-8 text-emerald-500/80 mb-3" />
+                <span className="text-center font-bold text-slate-200 leading-tight text-lg">{item.country}</span>
+              </div>
+              
+              {/* Dorso de la tarjeta (Capital) */}
+              <div className="absolute w-full h-full backface-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] bg-gradient-to-br from-cyan-950 to-blue-950 rounded-2xl shadow-lg border border-cyan-800 flex flex-col items-center justify-center p-4">
+                <span className="text-xs text-cyan-400 font-bold uppercase tracking-widest mb-2 opacity-80">Capital</span>
+                <span className="text-center font-bold text-white text-xl leading-tight">{item.capital}</span>
+              </div>
+
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {filteredCountries.length === 0 && (
+        <div className="text-center text-slate-500 mt-10 p-10 bg-slate-800/30 rounded-2xl border border-slate-700/50">
+          No se encontraron resultados para "{searchTerm}"
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 2. Modo Juego (Quiz)
+const Quiz = ({ mode, onBack }) => {
+  // mode: 'guessCapital', 'guessCountry', o 'mixed'
+  const [questions, setQuestions] = useState([]);
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isFinished, setIsFinished] = useState(false);
+
+  useEffect(() => {
+    generateQuestions();
+  }, [mode]);
+
+  const generateQuestions = () => {
+    const NUM_QUESTIONS = 10;
+    // Seleccionar 10 países al azar para las preguntas
+    const shuffledCountries = shuffleArray(AFRICA_COUNTRIES).slice(0, NUM_QUESTIONS);
+    
+    const newQuestions = shuffledCountries.map(correctItem => {
+      // Elegir 3 opciones incorrectas al azar asegurando que no sean la correcta
+      let wrongOptions = AFRICA_COUNTRIES.filter(c => c.id !== correctItem.id);
+      wrongOptions = shuffleArray(wrongOptions).slice(0, 3);
+      
+      const allOptions = shuffleArray([correctItem, ...wrongOptions]);
+      
+      // Si el modo es mixto, aleatorizamos individualmente cada pregunta
+      const qType = mode === 'mixed' 
+        ? (Math.random() > 0.5 ? 'guessCapital' : 'guessCountry')
+        : mode;
+      
+      return {
+        correctItem,
+        options: allOptions,
+        type: qType
+      };
+    });
+
+    setQuestions(newQuestions);
+    setCurrentQIndex(0);
+    setScore(0);
+    setSelectedOption(null);
+    setIsFinished(false);
+  };
+
+  const handleSelectOption = (option) => {
+    if (selectedOption !== null) return;
+    
+    setSelectedOption(option);
+    
+    const currentQ = questions[currentQIndex];
+    if (option.id === currentQ.correctItem.id) {
+      setScore(score + 1);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQIndex + 1 < questions.length) {
+      setCurrentQIndex(currentQIndex + 1);
+      setSelectedOption(null);
+    } else {
+      setIsFinished(true);
+    }
+  };
+
+  if (questions.length === 0) return (
+    <div className="flex justify-center items-center h-64 text-emerald-400">
+      <Zap className="w-8 h-8 animate-pulse" />
+    </div>
+  );
+
+  const currentQ = questions[currentQIndex];
+  
+  // Textos y colores dinámicos basados en el tipo de la pregunta actual
+  const isCapitalQuestion = currentQ.type === 'guessCapital';
+  
+  const questionTitle = isCapitalQuestion
+    ? "¿Cuál es la capital de...?"
+    : "¿A qué país pertenece la capital...?";
+    
+  const questionHighlight = isCapitalQuestion
+    ? currentQ.correctItem.country
+    : currentQ.correctItem.capital;
+
+  const getOptionText = (opt) => isCapitalQuestion ? opt.capital : opt.country;
+
+  // Temática de color de la tarjeta según el tipo de pregunta
+  const themeGradients = {
+    guessCapital: "from-amber-600 to-orange-800",
+    guessCountry: "from-emerald-600 to-teal-800",
+    mixed: "from-purple-600 to-indigo-800" // Fallback, no debería usarse en el header directo
+  };
+  
+  const headerGradient = isCapitalQuestion ? themeGradients.guessCapital : themeGradients.guessCountry;
+
+  // Progreso visual
+  const progressPercent = ((currentQIndex) / questions.length) * 100;
+
+  return (
+    <div className="w-full max-w-3xl mx-auto p-4 animate-in slide-in-from-bottom-8 duration-500">
+      
+      {/* Controles Superiores */}
+      <div className="flex justify-between items-center mb-8 bg-slate-800/40 p-3 rounded-2xl border border-slate-700/50 backdrop-blur-md">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors px-3 py-1"
+        >
+          <Home className="w-5 h-5" /> Abandonar
+        </button>
+        <div className="flex items-center gap-3">
+          <div className="text-sm font-bold text-slate-300">
+            {currentQIndex + 1} <span className="text-slate-500">/ {questions.length}</span>
+          </div>
+          <div className="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      {!isFinished ? (
+        <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative">
+          
+          {/* Indicador de modo mixto activo */}
+          {mode === 'mixed' && (
+            <div className="absolute top-4 right-4 bg-purple-500/20 text-purple-300 text-xs font-bold px-3 py-1 rounded-full border border-purple-500/30 flex items-center gap-1 z-10">
+              <Shuffle className="w-3 h-3" /> Aleatorio
+            </div>
+          )}
+
+          {/* Cabecera de pregunta */}
+          <div className={`bg-gradient-to-br ${headerGradient} p-10 text-center text-white relative shadow-inner`}>
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <p className="text-white/80 font-bold tracking-widest uppercase mb-3 text-sm drop-shadow-sm">{questionTitle}</p>
+            <h2 className="text-5xl font-black drop-shadow-md">{questionHighlight}</h2>
+          </div>
+
+          {/* Opciones */}
+          <div className="p-6 md:p-10 bg-slate-900/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {currentQ.options.map((opt, index) => {
+                const isSelected = selectedOption?.id === opt.id;
+                const isCorrect = opt.id === currentQ.correctItem.id;
+                
+                let btnStyle = "bg-slate-800 border-slate-600 text-slate-200 hover:bg-slate-700 hover:border-slate-400 hover:shadow-lg";
+                
+                if (selectedOption !== null) {
+                  if (isCorrect) {
+                    btnStyle = "bg-emerald-900/50 border-emerald-500 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+                  } else if (isSelected && !isCorrect) {
+                    btnStyle = "bg-red-900/50 border-red-500 text-red-100";
+                  } else {
+                    btnStyle = "bg-slate-800 border-slate-700 text-slate-500 opacity-40 grayscale";
+                  }
+                }
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleSelectOption(opt)}
+                    disabled={selectedOption !== null}
+                    className={`w-full p-5 rounded-2xl border-2 text-lg font-bold transition-all duration-300 flex justify-between items-center group ${btnStyle}`}
+                  >
+                    <span>{getOptionText(opt)}</span>
+                    
+                    {/* Iconos de resultado */}
+                    {selectedOption !== null ? (
+                      isCorrect ? <CheckCircle2 className="w-7 h-7 text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]" /> : 
+                      isSelected ? <XCircle className="w-7 h-7 text-red-400" /> : null
+                    ) : (
+                      <div className="w-6 h-6 rounded-full border-2 border-slate-600 group-hover:border-slate-400 transition-colors"></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Botón Siguiente */}
+            <div className={`mt-10 transition-all duration-500 ${selectedOption !== null ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+              <button
+                onClick={handleNextQuestion}
+                className="w-full md:w-auto md:ml-auto flex items-center justify-center gap-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:-translate-y-1"
+              >
+                {currentQIndex + 1 === questions.length ? "Ver Resultados Finales" : "Siguiente Pregunta"}
+                <ArrowRight className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Pantalla de Resultados
+        <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 text-center border-t-4 border-emerald-500 animate-in zoom-in duration-500 relative overflow-hidden">
+          {score === questions.length && (
+             <div className="absolute top-0 left-0 w-full h-full pointer-events-none flex justify-center items-center opacity-10">
+                <Sparkles className="w-64 h-64 text-yellow-400 animate-spin-slow" />
+             </div>
+          )}
+          
+          <div className="relative z-10">
+            <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-slate-700">
+              <Trophy className={`w-12 h-12 ${score > 7 ? 'text-yellow-400' : score > 4 ? 'text-slate-300' : 'text-amber-700'}`} />
+            </div>
+            
+            <h2 className="text-4xl font-black text-white mb-3">¡Ronda Completada!</h2>
+            <p className="text-slate-400 mb-10 text-lg">
+              {score === questions.length ? "¡Puntuación Perfecta! Eres un experto." : 
+               score > 5 ? "¡Buen trabajo! Sigue practicando." : 
+               "Necesitas estudiar un poco más."}
+            </p>
+            
+            <div className="flex justify-center items-center mb-12">
+              <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-700 w-full max-w-sm relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500"></div>
+                <span className="block text-sm text-slate-400 font-bold uppercase tracking-widest mb-2">Puntuación Total</span>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400">{score}</span>
+                  <span className="text-3xl text-slate-600 font-bold">/ {questions.length}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button
+                onClick={generateQuestions}
+                className="flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-8 rounded-2xl transition-all hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+              >
+                <RotateCcw className="w-5 h-5" /> Jugar de nuevo
+              </button>
+              <button
+                onClick={onBack}
+                className="flex items-center justify-center gap-3 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-8 rounded-2xl transition-all"
+              >
+                <Home className="w-5 h-5" /> Menú Principal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 3. Menú Principal
+export default function App() {
+  const [view, setView] = useState('menu'); // 'menu', 'study', 'quizCapital', 'quizCountry', 'quizMixed'
+
+  return (
+    <div className="min-h-screen bg-[#0B1120] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] font-sans text-slate-200 selection:bg-emerald-500/30">
+      
+      {/* Header global oscuro */}
+      <header className="bg-slate-900/50 backdrop-blur-md border-b border-white/5 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Globe2 className="w-6 h-6 text-slate-900" />
+            </div>
+            <h1 className="text-2xl font-black text-white tracking-tight">Geo<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">África</span> Pro</h1>
+          </div>
+        </div>
+      </header>
+
+      {/* Contenedor Principal */}
+      <main className="p-4 md:p-8 min-h-[calc(100vh-80px)] flex flex-col items-center justify-center relative">
+        
+        {/* Adorno de fondo ambiental */}
+        <div className="absolute top-1/4 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[128px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[128px] pointer-events-none"></div>
+
+        {view === 'menu' && (
+          <div className="w-full max-w-5xl text-center relative z-10 animate-in slide-in-from-bottom-8 duration-700">
+            
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 text-emerald-400 font-semibold text-sm mb-8">
+              <Sparkles className="w-4 h-4" /> Nueva versión mejorada
+            </div>
+
+            <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight leading-tight">
+              Domina el continente <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400">Jugando.</span>
+            </h2>
+            <p className="text-xl text-slate-400 mb-16 max-w-3xl mx-auto font-light">
+              Explora los 54 países de África a través de tarjetas dinámicas y desafíos impredecibles. Elige tu modo de juego.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              
+              {/* Tarjeta Modo Estudio */}
+              <button 
+                onClick={() => setView('study')}
+                className="bg-slate-800/40 backdrop-blur-md p-8 rounded-3xl shadow-xl hover:shadow-[0_0_30px_rgba(56,189,248,0.15)] transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 group text-left flex flex-col items-start hover:-translate-y-2"
+              >
+                <div className="w-14 h-14 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-900 transition-all duration-300">
+                  <BookOpen className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">Archivo de Estudio</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">Tarjetas interactivas para memorizar todos los países y capitales. Ahora con opción de mezcla aleatoria.</p>
+              </button>
+
+              {/* Tarjeta Quiz Capital */}
+              <button 
+                onClick={() => setView('quizCapital')}
+                className="bg-slate-800/40 backdrop-blur-md p-8 rounded-3xl shadow-xl hover:shadow-[0_0_30px_rgba(251,191,36,0.15)] transition-all duration-300 border border-slate-700/50 hover:border-amber-500/50 group text-left flex flex-col items-start hover:-translate-y-2"
+              >
+                <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all duration-300">
+                  <MapPin className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">Buscar Capital</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">Te damos un país y tendrás que elegir su capital correcta entre 4 opciones barajadas.</p>
+              </button>
+
+              {/* Tarjeta Quiz País */}
+              <button 
+                onClick={() => setView('quizCountry')}
+                className="bg-slate-800/40 backdrop-blur-md p-8 rounded-3xl shadow-xl hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-300 border border-slate-700/50 hover:border-emerald-500/50 group text-left flex flex-col items-start hover:-translate-y-2"
+              >
+                <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-900 transition-all duration-300">
+                  <Globe2 className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">Buscar País</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">Un desafío inverso: te damos la capital y deberás identificar a qué país pertenece.</p>
+              </button>
+
+              {/* Tarjeta Modo Mixto (NUEVO) */}
+              <button 
+                onClick={() => setView('quizMixed')}
+                className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 backdrop-blur-md p-8 rounded-3xl shadow-xl hover:shadow-[0_0_30px_rgba(168,85,247,0.2)] transition-all duration-300 border border-purple-500/30 hover:border-purple-400 group text-left flex flex-col items-start hover:-translate-y-2 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="w-14 h-14 bg-purple-500/20 text-purple-300 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                  <Zap className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">Supervivencia</h3>
+                <p className="text-purple-200/70 text-sm leading-relaxed">¡Máxima aleatoriedad! Las preguntas alternan entre adivinar país y adivinar capital al azar.</p>
+              </button>
+
+            </div>
+          </div>
+        )}
+
+        {view === 'study' && <Flashcards onBack={() => setView('menu')} />}
+        {view === 'quizCapital' && <Quiz mode="guessCapital" onBack={() => setView('menu')} />}
+        {view === 'quizCountry' && <Quiz mode="guessCountry" onBack={() => setView('menu')} />}
+        {view === 'quizMixed' && <Quiz mode="mixed" onBack={() => setView('menu')} />}
+
+      </main>
+    </div>
+  );
+}
